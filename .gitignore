@@ -2,3 +2,7 @@
 omniglot_resized/
 
 *.zip
+
+\.ipynb_checkpoints/
+
+__pycache__/

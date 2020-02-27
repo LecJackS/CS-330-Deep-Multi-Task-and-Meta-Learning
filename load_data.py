@@ -60,6 +60,8 @@ class DataGenerator(object):
         self.num_samples_per_class = num_samples_per_class
         self.num_classes = num_classes
 
+        config = {'sad':''}
+
         data_folder = config.get('data_folder', './omniglot_resized')
         self.img_size = config.get('img_size', (28, 28))
 
