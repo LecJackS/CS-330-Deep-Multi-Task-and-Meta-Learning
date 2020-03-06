@@ -2,8 +2,8 @@ import numpy as np
 import os
 import random
 import tensorflow as tf
-from scipy import misc
-
+#from scipy import misc
+import imageio
 
 def get_images(paths, labels, nb_samples=None, shuffle=True):
     """
@@ -37,7 +37,8 @@ def image_file_to_array(filename, dim_input):
     Returns:
         1 channel image
     """
-    image = misc.imread(filename)
+    #image = misc.imread(filename)
+    image = imageio.imread(filename)
     image = image.reshape([dim_input])
     image = image.astype(np.float32) / 255.0
     image = 1.0 - image
@@ -57,8 +58,9 @@ class DataGenerator(object):
             num_samples_per_class: num samples to generate per class in one batch
             batch_size: size of meta batch size (e.g. number of functions)
         """
-        self.num_samples_per_class = num_samples_per_class
         self.num_classes = num_classes
+        self.num_samples_per_class = num_samples_per_class
+        
 
         config = {'sad':''}
 
@@ -67,6 +69,8 @@ class DataGenerator(object):
 
         self.dim_input = np.prod(self.img_size)
         self.dim_output = self.num_classes
+        
+       
 
         character_folders = [os.path.join(data_folder, family, character)
                              for family in os.listdir(data_folder)
@@ -83,8 +87,9 @@ class DataGenerator(object):
             num_train:num_train + num_val]
         self.metatest_character_folders = character_folders[
             num_train + num_val:]
+        print("Data generator initialized. Shape: [B, {}, {}, 784]".format(self.num_samples_per_class, self.num_classes))
 
-    def sample_batch(self, batch_type, batch_size):
+    def sample_batch(self, batch_type, batch_size=1):#, k_samples=1, n_classes=5):
         """
         Samples a batch for training, validation, or testing
         Args:
@@ -94,6 +99,9 @@ class DataGenerator(object):
             image batch has shape [B, K, N, 784] and label batch has shape [B, K, N, N]
             where B is batch size, K is number of samples per class, N is number of classes
         """
+        n_classes  = self.num_classes
+        k_samples  = self.num_samples_per_class
+        
         if batch_type == "train":
             folders = self.metatrain_character_folders
         elif batch_type == "val":
@@ -103,7 +111,32 @@ class DataGenerator(object):
 
         #############################
         #### YOUR CODE GOES HERE ####
-        pass
-        #############################
-
+        pixels = 28*28
+        all_image_batches = np.ndarray((batch_size, k_samples, n_classes, pixels))
+        all_label_batches = np.ndarray((batch_size, k_samples, n_classes, n_classes))
+        #print("all_image_batches shape: ", all_image_batches.shape)
+        for b in range(batch_size):
+            # Take N samples from all alphabet folders
+            sample_paths  = random.sample(folders, n_classes)
+            sample_labels = [os.path.basename(os.path.split(family)[0]) for family in sample_paths]
+            images_labels = get_images(sample_paths, sample_labels, k_samples)
+            
+            # TODO: COrrect use of dimension
+            count = 0
+            for k in range(k_samples):
+                for n in range(n_classes):
+                    #print(images_labels[count][1])
+                    all_image_batches[b, k, n, :] = image_file_to_array(filename=images_labels[count][1], dim_input=pixels)
+                    #print(np.repeat([images_labels[count][0]], n_classes, axis=0))
+                    #all_label_batches[b, k, n, :] = np.repeat([images_labels[count][0]], n_classes, axis=0)
+                    # Labels as one-hot vectors
+                    #print(b, k, n)
+                    all_label_batches[b, k, n, :] = np.zeros(n_classes)
+                    #print("[b, k, n, count]",[b, k, n, n])
+                    if batch_type == "train":
+                        all_label_batches[b, k, n, n] = 1
+                    count += 1
+            #############################
+        #print("Batch of images of shape:", all_image_batches.shape)
+        #print("Batch of labels of shape:", all_label_batches.shape)
         return all_image_batches, all_label_batches

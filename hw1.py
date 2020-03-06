@@ -28,7 +28,22 @@ def loss_function(preds, labels):
     """
     #############################
     #### YOUR CODE GOES HERE ####
-    pass
+    #print(preds.shape)
+    #print(labels[0,:,:,:].shape)
+    #bce  = tf.keras.losses.BinaryCrossentropy()
+    #loss = bce(preds, labels)
+    #tf.expand_dims(t, 0) 
+    #if labels.get_shape().as_list()[0] == None :
+    #    print("None shape")
+    #    loss = tf.losses.softmax_cross_entropy(labels[0,:,:,:], preds, reduction='weighted_sum')
+    #else:
+    #    print("not None shape")
+    #    loss = tf.losses.softmax_cross_entropy(labels, preds, reduction='weighted_sum')
+    #new_shape = labels.get_shape().as_list()[-3:]
+    #labels = tf.reshape(labels, tf.TensorShape(new_shape))
+    loss = tf.losses.softmax_cross_entropy(labels, preds, reduction='weighted_sum')
+    return loss
+    
     #############################
 
 
@@ -46,13 +61,21 @@ class MANN(tf.keras.Model):
         MANN
         Args:
             input_images: [B, K+1, N, 784] flattened images
-            labels: [B, K+1, N, N] ground truth labels
+            labels:       [B, K+1, N, N] ground truth labels
         Returns:
             [B, K+1, N, N] predictions
         """
         #############################
         #### YOUR CODE GOES HERE ####
-        pass
+        batchs = input_images.shape[0]
+        out = np.ndarray([16,
+                          input_images.shape[1],
+                          input_images.shape[2],
+                          input_images.shape[3] ])
+        for i in range(16):
+            out[i,:,:,:] = self.layer1(input_images[i,:,:,:])#[i,:,:,:])
+            out[i,:,:,:] = self.layer2(out)
+        #out = np.ones((1,2,5,784))
         #############################
         return out
 
@@ -68,22 +91,26 @@ o = MANN(FLAGS.num_classes, FLAGS.num_samples + 1)
 out = o(ims, labels)
 
 loss = loss_function(out, labels)
-optim = tf.train.AdamOptimizer(0.001)
+#optim = tf.train.AdamOptimizer(0.001)
+optim = tf.compat.v1.train.AdamOptimizer(0.001)
 optimizer_step = optim.minimize(loss)
-
-with tf.Session() as sess:
+print("Starts training...")
+with tf.compat.v1.Session() as sess:
     sess.run(tf.local_variables_initializer())
     sess.run(tf.global_variables_initializer())
-
+    
     for step in range(50000):
-        i, l = data_generator.sample_batch('train', FLAGS.meta_batch_size)
-        feed = {ims: i.astype(np.float32), labels: l.astype(np.float32)}
+        i, l = data_generator.sample_batch('train', batch_size=16)#FLAGS.meta_batch_size)
+        #print("i.shape:",i.shape)
+        feed = {ims:    i.astype(np.float32),
+                labels: l.astype(np.float32)}
+        #print("feed[ims].shape:", feed[ims].shape)
         _, ls = sess.run([optimizer_step, loss], feed)
 
         if step % 100 == 0:
             print("*" * 5 + "Iter " + str(step) + "*" * 5)
             i, l = data_generator.sample_batch('test', 100)
-            feed = {ims: i.astype(np.float32),
+            feed = {ims:    i.astype(np.float32),
                     labels: l.astype(np.float32)}
             pred, tls = sess.run([out, loss], feed)
             print("Train Loss:", ls, "Test Loss:", tls)
