@@ -69,8 +69,6 @@ class DataGenerator(object):
 
         self.dim_input = np.prod(self.img_size)
         self.dim_output = self.num_classes
-        
-       
 
         character_folders = [os.path.join(data_folder, family, character)
                              for family in os.listdir(data_folder)
@@ -78,7 +76,7 @@ class DataGenerator(object):
                              for character in os.listdir(os.path.join(data_folder, family))
                              if os.path.isdir(os.path.join(data_folder, family, character))]
 
-        random.seed(1)
+        random.seed(42)
         random.shuffle(character_folders)
         num_val = 100
         num_train = 1100
