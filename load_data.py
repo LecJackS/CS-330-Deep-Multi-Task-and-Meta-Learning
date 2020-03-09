@@ -128,11 +128,9 @@ class DataGenerator(object):
                     #print(np.repeat([images_labels[count][0]], n_classes, axis=0))
                     #all_label_batches[b, k, n, :] = np.repeat([images_labels[count][0]], n_classes, axis=0)
                     # Labels as one-hot vectors
-                    #print(b, k, n)
+                    #all_label_batches[b, k, n, :] = tf.one_hot(indices=n, depth=n_classes)
                     all_label_batches[b, k, n, :] = np.zeros(n_classes)
-                    #print("[b, k, n, count]",[b, k, n, n])
-                    if batch_type == "train":
-                        all_label_batches[b, k, n, n] = 1
+                    all_label_batches[b, k, n, n] = 1
                     count += 1
             #############################
         #print("Batch of images of shape:", all_image_batches.shape)

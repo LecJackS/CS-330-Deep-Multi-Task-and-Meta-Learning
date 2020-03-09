@@ -36,7 +36,7 @@ def loss_function(preds, labels):
     #labels = tf.reshape(labels, tf.TensorShape(new_shape))
     #loss = tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=preds)
     loss = tf.keras.losses.categorical_crossentropy(y_true=labels[:,-1:,:,:], y_pred=preds[:,-1:,:,:], from_logits=True)
-    loss = tf.reduce_sum(loss)
+    loss = tf.reduce_mean(loss)
     #############################
     return loss
 
