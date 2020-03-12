@@ -12,7 +12,7 @@ from tensorflow.keras import layers
 FLAGS = flags.FLAGS
 
 flags.DEFINE_integer(
-    'num_classes', 2, 'number of classes used in classification (e.g. 5-way classification).')
+    'num_classes', 20, 'number of classes used in classification (e.g. 5-way classification).')
 
 flags.DEFINE_integer('num_samples', 1,
                      'number of examples used for inner gradient update (K for K-shot learning).')
