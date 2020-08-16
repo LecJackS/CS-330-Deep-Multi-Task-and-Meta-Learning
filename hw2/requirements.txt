@@ -7,5 +7,5 @@ Pillow
 scikit-learn==0.20.1
 scipy==1.1.0
 tensorboard==1.14.0
-tensorflow_gpu==1.14.0
+tensorflow_gpu==1.15.2
 jupyter
