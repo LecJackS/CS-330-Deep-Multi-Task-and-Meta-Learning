@@ -6,3 +6,7 @@ omniglot_resized/
 \.ipynb_checkpoints/
 
 __pycache__/
+
+hw1/.idea/
+
+hw1/hw1/.idea/
