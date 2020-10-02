@@ -41,7 +41,7 @@ FLAGS = flags.FLAGS
 # ************   Define global variables and initialize    ************ #
 
 tau = 0.95  # Polyak averaging parameter
-buffer_size = 1e6  # maximum number of elements in the replay buffer
+buffer_size = 1e8 #1e6  # maximum number of elements in the replay buffer
 batch_size = 128  # number of samples to draw from the replay_buffer
 
 num_epochs = FLAGS.num_epochs  # epochs to run training for
@@ -256,7 +256,7 @@ def update_replay_buffer(episode_experience, HER):
                 # episode
                 # pass
 
-                t_future = np.random.randint(t, m)
+                t_future = np.random.randint(i, m)
                 _, _, _, relabel_goal, _ = episode_experience[t_future]
                 replay_buffer.add(inputs, a, r, relabel_goal)
 
@@ -264,7 +264,7 @@ def update_replay_buffer(episode_experience, HER):
             elif HER == 'random':
                 # random - relabel based on a random state in the episode
                 # pass
-                m = len(episode_experience)
+                #m = len(episode_experience)
                 t_random = np.random.randint(0, m)
                 _, _, _, relabel_goal, _ = episode_experience[t_random]
                 replay_buffer.add(inputs, a, r, relabel_goal)
